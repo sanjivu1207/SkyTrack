@@ -72,8 +72,11 @@ std::vector<Detection> Simulator::sweep() {
         out.push_back(d);
     }
 
-    std::poisson_distribution<int> clutterCount(cfg_.clutterPerSweep);
-    const int nClutter = clutterCount(rng_);
+    int nClutter = 0;
+    if (cfg_.clutterPerSweep > 0.0) {
+        std::poisson_distribution<int> clutterCount(cfg_.clutterPerSweep);
+        nClutter = clutterCount(rng_);
+    }
     for (int i = 0; i < nClutter; ++i) {
         Detection d;
         d.range = cfg_.maxRange * std::sqrt(unit(rng_));  

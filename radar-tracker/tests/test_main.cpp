@@ -1,5 +1,7 @@
 #include "Hungarian.hpp"
 #include "KalmanFilter.hpp"
+#include "Simulator.hpp"
+#include "Tracker.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -97,11 +99,40 @@ static void testGatingRejectsFarMeasurement() {
     CHECK(kf.mahalanobis2(Vec2{{px + 2000.0, py}}, R) > kGate);
 }
 
+static void testEndToEndTwoTargets() {
+    std::printf("End-to-end: 2 targets, no clutter\n");
+    RadarConfig radar;
+    radar.clutterPerSweep = 0.0;
+    Simulator sim(radar, 123);
+
+    Target a;
+    a.id = 0;
+    a.x = 10'000.0;
+    a.vy = 150.0;
+    sim.addTarget(a);
+
+    Target b;
+    b.id = 1;
+    b.x = -20'000.0;
+    b.y = 5'000.0;
+    b.vx = 200.0;
+    b.turnRate = 0.01;
+    sim.addTarget(b);
+
+    Tracker tracker;
+    for (int k = 0; k < 60; ++k) {
+        sim.step(1.0);
+        tracker.process(sim.sweep(), 1.0);
+    }
+    CHECK(tracker.confirmedCount() == 2);
+}
+
 int main() {
     testHungarianSquare();
     testHungarianRectangular();
     testKalmanVelocityConvergence();
     testGatingRejectsFarMeasurement();
+    testEndToEndTwoTargets();
 
     if (g_failures == 0) {
         std::printf("All tests passed\n");
