@@ -7,8 +7,9 @@
 
 struct TrackerConfig {
     double gateThreshold = 13.8;
-    double processNoise = 5.0;
+    double processNoise = 20.0;
     double maxSpeed = 300.0;
+    double maxRange = 50'000.0;
     double rangeSigma = 50.0;
     double bearingSigma = 0.002;
     int confirmHits = 3;

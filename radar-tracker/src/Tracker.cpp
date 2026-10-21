@@ -90,6 +90,8 @@ void Tracker::process(const std::vector<Detection>& detections, double dt) {
 
     tracks_.erase(std::remove_if(tracks_.begin(), tracks_.end(),
                                  [&](const Track& t) {
+                                     const Vec4& x = t.kf.state();
+                                     if (std::hypot(x[0], x[1]) > cfg_.maxRange) return true;
                                      if (t.status == TrackStatus::Confirmed)
                                          return t.consecutiveMisses > cfg_.maxConfirmedMisses;
                                      return t.consecutiveMisses > cfg_.maxTentativeMisses ||
